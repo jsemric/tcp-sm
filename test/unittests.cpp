@@ -13,7 +13,6 @@
 namespace tcp_ss_test {
 
 constexpr unsigned PORT = 12345;
-constexpr unsigned SOCK_RETRIES = 10;
 
 class OneshotTcpServer {
 
@@ -44,13 +43,11 @@ public:
       }
    }
 
-   void start(unsigned port) {
+   void setup(unsigned port) {
       ASSERT_EQ(listen_sock, -1);
       ASSERT_EQ(client_sock, -1);
 
-      struct sockaddr_in server_addr, client_addr;
-      socklen_t addrlen = sizeof(client_addr);
-      struct pollfd fds[1]; // Only need to monitor the listening socket
+      struct sockaddr_in server_addr;
 
       /* 1. Setup Listening Socket */
       if ((listen_sock = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
@@ -75,7 +72,13 @@ public:
       if (listen(listen_sock, 1) < 0) {
          ASSERT_FALSE("ERROR on listen");
       }
+   }
 
+   void start() {
+      struct sockaddr_in client_addr;
+      socklen_t addrlen = sizeof(client_addr);
+
+      struct pollfd fds[1]; // Only need to monitor the listening socket
       fds[0].fd = listen_sock;
       fds[0].events = POLLIN;
 
@@ -134,22 +137,19 @@ protected:
    std::thread server_thread;
 
    void SetUp() override {
-      server_thread = std::thread([this](){ server.start(PORT);});
+      server.setup(PORT);
+      server_thread = std::thread([this](){ server.start();});
    }
 
    void TearDown() override {
       server.stop();
-      server.close_sockets();
       server_thread.join();
    }
 };
 
 TEST_F(TcpStatsTest, CanFindTcpSocketStats) {
    int socket = -1;
-   // repeat couple of times to give server thread time to open the connection
-   for (size_t i =0; i < SOCK_RETRIES && socket <= 0; i++) {
-      socket = connect_tcp(PORT);
-   }
+   socket = connect_tcp(PORT);
    ASSERT_GT(socket, 0);
    auto stats = tcp_ss::get_tcp_socket_stats();
    close(socket);
