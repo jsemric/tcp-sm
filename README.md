@@ -18,14 +18,15 @@ ESTAB         10.0.0.8:35410  ->     37.0.113.110:443    R-Q:0 W-Q:0 pmtu:1500 m
 ```
 
 ## Install
-Clone the repository and run the following.
+Download the latest version and unpack the archive.
 ```
-make build
+wget https://github.com/jsemric/tcp-sm/releases/download/1.0.0/tcp-sm-1.0.0.tar.gz && \
+    tar xzvf tcp-sm-1.0.0.tar.gz -C /usr/local/bin
 ```
-This will output the binaries in `./build` directory relative to the project.
+Currently only AMD debian-based distros are supported.
 
 ## Testing
-First donwload gooletest repo.
+First download googletest repo.
 ```
 git clone https://github.com/google/googletest.git --branch v1.17.0 --depth 1
 ```
