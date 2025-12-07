@@ -13,9 +13,11 @@
 #include <cstring>
 #include <format>
 
+constexpr const char * VERSION_STR = "1.0.0";
 constexpr const char * USAGE = "Usage: tcp-stat [OPTIONS]\n"
 "Dump real-time statistics about TCP socket\n"
 "  -h, --help              show help and exit\n"
+"  -v, --version           show current version\n"
 "  -s, --sport=PORT        source port to filter\n"
 "  -d, --dport=PORT        destination port to filter\n"
 "  -H, --host=HOST         host to filter\n"
@@ -34,6 +36,7 @@ struct cmd_options {
 
 static const struct option long_opts[] = {
 	{ "help", 0, 0, 'h' },
+	{ "version", 0, 0, 'v' },
 	{ "interval",1, 0, 'i' },
 	{ "sport", 1, 0, 's' },
 	{ "dport", 1, 0, 'd' },
@@ -49,12 +52,15 @@ cmd_options parse_options(int argc, char *const * argv) {
     cmd_options args;
     int opt;
     
-    while((opt = getopt_long(argc, argv, "s:d:i:H:h", long_opts, nullptr)) != -1) 
+    while((opt = getopt_long(argc, argv, "s:d:i:H:hv", long_opts, nullptr)) != -1) 
     { 
         switch(opt) 
         { 
             case 'h': 
                 std::cout << USAGE << std::endl;
+                std::exit(0);
+            case 'v': 
+                std::cout << "tcp-sm " << VERSION_STR << std::endl;
                 std::exit(0);
             case 's': 
                 args.sport.emplace(std::stoul(optarg));
