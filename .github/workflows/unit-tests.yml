@@ -1,0 +1,32 @@
+name: Tests
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+  workflow_dispatch:
+
+jobs:
+  build_and_test:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Set up C++ Build Environment
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y cmake build-essential
+
+    - name: Download Google Test v1.17.0
+      run: |
+        echo "Downloading Google Test v1.17.0..."
+        git clone https://github.com/google/googletest.git --branch v1.17.0 --depth 1
+
+    - name: Build Project
+      run: make build
+
+    - name: Run Tests
+      run: make test
